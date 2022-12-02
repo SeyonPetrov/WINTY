@@ -2,7 +2,9 @@ import pygame
 
 
 WH = pygame.Color('white')
-BL = pygame.Color('black')
+BLK = pygame.Color('black')
+RD = pygame.Color('red')
+BLU = pygame.Color('blue')
 CELLS = {}  # создаем словарь для записи данных о клетках
 
 
@@ -16,6 +18,8 @@ class Board:
         self.left = 10
         self.top = 10
         self.cell_size = 30
+        self.color = WH
+        self.pen = 1
 
     # настройка внешнего вида
     def set_view(self, left, top, cell_size):
@@ -30,7 +34,7 @@ class Board:
             n = self.left  # задаем у
 
             for j in range(self.height):  # рисуем клеточку за клеточкой
-                pygame.draw.rect(scrn, WH, (m, n, self.cell_size, self.cell_size), 1)
+                pygame.draw.rect(scrn, self.color, (m, n, self.cell_size, self.cell_size), self.pen)
                 CELLS[(i, j)] = (m, n, m + self.cell_size, n + self.cell_size)  # записываем данные о каждой клетке
                 n += self.cell_size  # меняем координаты, чтобы клеточки встали на свои места
 
@@ -50,13 +54,31 @@ class Board:
 
         return None  # выводим текст ошибки если курсор не находится в зоне доски во время нажатия
 
-    @staticmethod
-    def on_click(cell_poz):  #
-        print(cell_poz)
+    def on_click(self, cell_poz):  #
+        return cell_poz
 
     def get_click(self, m_poz):  #
         coords = self.get_cell(m_poz)
-        self.on_click(coords)
+        return self.on_click(coords)
+
+    def give_color(self, poz):  # черный красный синий
+
+        if poz:
+            n, m = poz
+            if self.board[m][n] == 0:
+                self.color = RD
+                self.pen = 0
+                self.board[m][n] = 1
+            if self.board[m][n] == 1:
+                self.color = BLU
+                self.pen = 0
+                self.board[m][n] = 2
+            if self.board[m][n] == 2:
+                self.color = WH
+                self.pen = 1
+                self.board[m][n] = 0
+            print(self.board[m][n])
+        print(self.board)
 
 
 if __name__ == '__main__':
@@ -75,8 +97,8 @@ if __name__ == '__main__':
             if e.type == pygame.QUIT:
                 run = False
             if pygame.mouse.get_pressed() == (1, 0, 0):  #
-                board.get_click(pygame.mouse.get_pos())
-
+                x = board.get_click(pygame.mouse.get_pos())
+                board.give_color(x)
         screen.fill((0, 0, 0))
         board.render(screen)
         pygame.display.flip()
