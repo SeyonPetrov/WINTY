@@ -5,7 +5,7 @@ import pygame
 # Изображение не получится загрузить
 # без предварительной инициализации pygame
 pygame.init()
-size = width, height = 600, 95
+size = width, height = 600, 300
 screen = pygame.display.set_mode(size)
 
 
@@ -22,40 +22,24 @@ def load_image(name):
 all_sprites = pygame.sprite.Group()
 
 
-class Car(pygame.sprite.Sprite):
-    image = load_image("car.png")
+class GameOver(pygame.sprite.Sprite):
+    image = load_image("gameover.png")
 
     def __init__(self, *group):
         # НЕОБХОДИМО вызвать конструктор родительского класса Sprite.
         # Это очень важно!!!
         super().__init__(*group)
-        self.image = Car.image
+        self.image = GameOver.image
         self.rect = self.image.get_rect()
-        self.rect.x = 0
+        self.rect.x = -600
         self.rect.y = 0
-        self.n = 0
-        self.flag = 0
-        self.p = 0
 
     def update(self):
-        if self.rect.x == 450:
-            self.flag = 1
-            self.image = pygame.transform.flip(self.image, True, False)
-        elif self.rect.x == 0:
-            self.flag = 0
-            if self.p:
-                self.image = pygame.transform.flip(self.image, True, False)
-
-        if self.flag:
-            self.rect.x -= 1
-        else:
+        if self.rect.x != 0:
             self.rect.x += 1
 
-        if not self.p:
-            self.p += 1
 
-
-Car(all_sprites)
+GameOver(all_sprites)
 clock = pygame.time.Clock()
 run = True
 while run:
@@ -64,9 +48,9 @@ while run:
         if event.type == pygame.QUIT:
             run = False
 
-    screen.fill('white')
+    screen.fill('blue')
     all_sprites.draw(screen)
     all_sprites.update()
     pygame.display.flip()
-    clock.tick(230)
+    clock.tick(200)
 pygame.quit()
