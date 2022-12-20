@@ -1,34 +1,72 @@
-import pygame as pg
 import os
+import sys
+import pygame
 
-pg.init()
-screen = pg.display.set_mode((300, 300))
-pg.display.set_caption("Свой курсор мыши")
+# Изображение не получится загрузить
+# без предварительной инициализации pygame
+pygame.init()
+size = width, height = 600, 95
+screen = pygame.display.set_mode(size)
 
-im = pg.image.load(os.path.join('data', 'creature.png'))  # загружаем изображение персонажа
-scrn = pg.Surface((83, 101))
-scrn.blit(im, (0, 0))  # располагаем его на отдельном холсте
 
-clock = pg.time.Clock()
-go = True
-x = y = 0
-while go:
+def load_image(name):
+    fullname = os.path.join('data', name)
+    # если файл не существует, то выходим
+    if not os.path.isfile(fullname):
+        print(f"Файл с изображением '{fullname}' не найден")
+        sys.exit()
+    image = pygame.image.load(fullname).convert_alpha()
+    return image
 
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            go = False
-        if pg.key.get_pressed()[pg.K_UP]:  # при нажатии на стрелку "вверх"
-            y -= 10  # двигаем в отрицательную сторону по оси ординат
-        if pg.key.get_pressed()[pg.K_DOWN]:  # при нажатии на стрелку "вниз"
-            y += 10  # перемещаем в положительную сторону по оси ординат
-        if pg.key.get_pressed()[pg.K_RIGHT]:  # при нажатии на стрелку "вправо"
-            x += 10  # двигаемся в положительную сторону оси абцисс
-        if pg.key.get_pressed()[pg.K_LEFT]:  # при нажатии на стрелку "влево"
-            x -= 10  # перемещаемся в отрицательную сторону по оси абцисс
 
-    screen.fill(('white'))  # красим фон в белый
-    screen.blit(scrn, (x, y))  # рисуем нашего персонажа на основном холсте
-    pg.display.flip()
-    clock.tick(60)
+all_sprites = pygame.sprite.Group()
 
-pg.quit()
+
+class Car(pygame.sprite.Sprite):
+    image = load_image("car.png")
+
+    def __init__(self, *group):
+        # НЕОБХОДИМО вызвать конструктор родительского класса Sprite.
+        # Это очень важно!!!
+        super().__init__(*group)
+        self.image = Car.image
+        self.rect = self.image.get_rect()
+        self.rect.x = 0
+        self.rect.y = 0
+        self.n = 0
+        self.flag = 0
+        self.p = 0
+
+    def update(self):
+        if self.rect.x == 450:
+            self.flag = 1
+            self.image = pygame.transform.flip(self.image, True, False)
+        elif self.rect.x == 0:
+            self.flag = 0
+            if self.p:
+                self.image = pygame.transform.flip(self.image, True, False)
+
+        if self.flag:
+            self.rect.x -= 1
+        else:
+            self.rect.x += 1
+
+        if not self.p:
+            self.p += 1
+
+
+Car(all_sprites)
+clock = pygame.time.Clock()
+run = True
+while run:
+    scrn = pygame.Surface(screen.get_size())
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+
+    screen.fill('white')
+    all_sprites.draw(screen)
+    all_sprites.update()
+    pygame.display.flip()
+    clock.tick(230)
+pygame.quit()
